@@ -506,14 +506,14 @@ services:
         image: hyperledger/fabric-tools
         tty: true
         environment:
-            - GOPATH=/opt/gopath
-            - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-            - CORE_LOGGING_LEVEL=DEBUG
-            - CORE_PEER_ID=cli
-            - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
-            - CORE_PEER_LOCALMSPID=Org1MSP
-            - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
-            # TLS settings
+          - GOPATH=/opt/gopath
+          - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+          - CORE_LOGGING_LEVEL=DEBUG
+          - CORE_PEER_ID=cli
+          - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+          - CORE_PEER_LOCALMSPID=Org1MSP
+          - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+          # TLS settings
 #            - CORE_PEER_TLS_ENABLED=false
 #            - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/tls/server.crt
 #            - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/tls/server.key
@@ -521,11 +521,11 @@ services:
         working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
         command: /bin/bash -c 'sleep 6000000000000000000'
         volumes:
-            - /var/run/:/host/var/run/
-            - ./../chaincode/:/opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/go
-            - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
-            - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
-            - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+          - /var/run/:/host/var/run/
+          - ./../chaincode/:/opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/go
+          - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+          - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+          - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
         ports:
             - '9092'
         depends_on:
