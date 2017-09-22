@@ -1,0 +1,382 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+networks:
+  byfn:
+services:
+
+  zookeeper0:
+    container_name: zookeeper0
+    privileged: true
+    image: hyperledger/fabric-zookeeper
+    environment:
+      - ZOO_MY_ID=1
+      - ZOO_SERVERS=server.1=zookeeper0:2888:3888 server.2=zookeeper1:2888:3888 server.3=zookeeper2:2888:3888
+    ports:
+      - 2181
+      - 2888
+      - 3888
+    networks:
+      - byfn
+
+  zookeeper1:
+    container_name: zookeeper1
+    privileged: true
+    image: hyperledger/fabric-zookeeper
+    environment:
+     - ZOO_MY_ID=2
+     - ZOO_SERVERS=server.1=zookeeper0:2888:3888 server.2=zookeeper1:2888:3888 server.3=zookeeper2:2888:3888
+    ports:
+      - 2181
+      - 2888
+      - 3888
+    networks:
+      - byfn
+
+  zookeeper2:
+    container_name: zookeeper2
+    privileged: true
+    image: hyperledger/fabric-zookeeper
+    environment:
+      - ZOO_MY_ID=3
+      - ZOO_SERVERS=server.1=zookeeper0:2888:3888 server.2=zookeeper1:2888:3888 server.3=zookeeper2:2888:3888
+    ports:
+      - 2181
+      - 2888
+      - 3888
+    networks:
+      - byfn
+
+  kafka0:
+    image: hyperledger/fabric-kafka
+    container_name: kafka0
+    privileged: true
+    environment:
+      - KAFKA_LOG_RETENTION_MS=-1
+      - KAFKA_MESSAGE_MAX_BYTES=103809024
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+      - KAFKA_BROKER_ID=0
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+    ports:
+      - 9092
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2
+    links:
+      - zookeeper0:zookeeper0
+      - zookeeper1:zookeeper1
+      - zookeeper2:zookeeper2
+    networks:
+      - byfn
+
+  kafka1:
+    image: hyperledger/fabric-kafka
+    container_name: kafka1
+    privileged: true
+    environment:
+      - KAFKA_LOG_RETENTION_MS=-1
+      - KAFKA_MESSAGE_MAX_BYTES=103809024
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+    ports:
+      - 9092
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2
+    links:
+      - zookeeper0:zookeeper0
+      - zookeeper1:zookeeper1
+      - zookeeper2:zookeeper2
+    networks:
+      - byfn
+
+  kafka2:
+    image: hyperledger/fabric-kafka
+    container_name: kafka2
+    privileged: true
+    environment:
+      - KAFKA_LOG_RETENTION_MS=-1
+      - KAFKA_MESSAGE_MAX_BYTES=103809024
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+      - KAFKA_BROKER_ID=2
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+    ports:
+      - 9092
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2
+    links:
+      - zookeeper0:zookeeper0
+      - zookeeper1:zookeeper1
+      - zookeeper2:zookeeper2
+    networks:
+      - byfn
+
+  kafka3:
+    image: hyperledger/fabric-kafka
+    container_name: kafka3
+    privileged: true
+    environment:
+      - KAFKA_LOG_RETENTION_MS=-1
+      - KAFKA_MESSAGE_MAX_BYTES=103809024
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+      - KAFKA_BROKER_ID=3
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+      - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+    ports:
+      - 9092
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2
+    links:
+      - zookeeper0:zookeeper0
+      - zookeeper1:zookeeper1
+      - zookeeper2:zookeeper2
+    networks:
+      - byfn
+
+  ca0:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-org1
+#      - FABRIC_CA_SERVER_TLS_ENABLED=true
+#      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org1.example.com-cert.pem
+#      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/395fcde4d323903ea2b537acd9506d6aab2d3043f960065dcf0fc88999e0662c_sk
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org1.example.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/395fcde4d323903ea2b537acd9506d6aab2d3043f960065dcf0fc88999e0662c_sk -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/org1.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerOrg1
+    privileged: true
+    networks:
+      - byfn
+
+  ca1:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-org2
+#      - FABRIC_CA_SERVER_TLS_ENABLED=true
+#      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org2.example.com-cert.pem
+#      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/1ca4d3c21de7a15fe713d4e7137ae9ab4b823535bbe3fc22282e73cb98e7d5fb_sk
+    ports:
+      - "8054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org2.example.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/1ca4d3c21de7a15fe713d4e7137ae9ab4b823535bbe3fc22282e73cb98e7d5fb_sk -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/org2.example.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peerOrg2
+    privileged: true
+    networks:
+      - byfn
+
+  orderer.example.com:
+    extends:
+      file:   base/docker-compose-base.yaml
+      service: orderer.example.com
+    container_name: orderer.example.com
+    environment:
+      - ORDERER_GENERAL_LOGLEVEL=debug
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_default
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - CONFIGTX_ORDERER_ORDERERTYPE=kafka
+      - CONFIGTX_ORDERER_KAFKA_BROKERS=[kafka0:9092,kafka1:9092,kafka2:9092,kafka3:9092]
+      - ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
+      - ORDERER_KAFKA_RETRY_SHORTTOTAL=30s
+      - ORDERER_KAFKA_VERBOSE=true
+      - CONFIGTX_ORDERER_ADDRESSES=[127.0.0.1:7050]
+      - ORDERER_GENERAL_LEDGERTYPE=ram
+      - ORDERER_GENERAL_GENESISPROFILE=TwoOrgsOrdererGenesis
+    depends_on:
+      - kafka0
+      - kafka1
+      - kafka2
+      - kafka3
+    links:
+      - kafka0:kafka0
+      - kafka1:kafka1
+      - kafka2:kafka2
+      - kafka3:kafka3
+    networks:
+      - byfn
+
+  couchdb0:
+      container_name: couchdb0
+      privileged: true
+      image: hyperledger/fabric-couchdb
+      environment:
+        - COUCHDB_USER=
+        - COUCHDB_PASSWORD=
+      ports:
+        - "5984:5984"
+      networks:
+        - byfn
+
+  peer0.org1.example.com:
+    container_name: peer0.org1.example.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.org1.example.com
+    environment:
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
+    depends_on:
+      - couchdb0
+      - orderer.example.com
+    links:
+      - orderer.example.com
+    networks:
+      - byfn
+
+  couchdb1:
+    container_name: couchdb1
+    privileged: true
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=
+      - COUCHDB_PASSWORD=
+    ports:
+      - "6984:5984"
+    networks:
+      - byfn
+
+  peer1.org1.example.com:
+    container_name: peer1.org1.example.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.org1.example.com
+    environment:
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
+    depends_on:
+      - couchdb1
+      - orderer.example.com
+    links:
+      - orderer.example.com
+    networks:
+      - byfn
+
+  couchdb2:
+    container_name: couchdb2
+    privileged: true
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=
+      - COUCHDB_PASSWORD=
+    ports:
+      - "7984:5984"
+    networks:
+      - byfn
+
+  peer0.org2.example.com:
+    container_name: peer0.org2.example.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.org2.example.com
+    environment:
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb2:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
+    depends_on:
+      - couchdb2
+      - orderer.example.com
+    links:
+      - orderer.example.com
+    networks:
+      - byfn
+
+  couchdb3:
+    container_name: couchdb3
+    privileged: true
+    image: hyperledger/fabric-couchdb
+    environment:
+      - COUCHDB_USER=
+      - COUCHDB_PASSWORD=
+    ports:
+      - "8984:5984"
+    networks:
+      - byfn
+
+  peer1.org2.example.com:
+    container_name: peer1.org2.example.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.org2.example.com
+    environment:
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb3:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
+    depends_on:
+      - couchdb3
+      - orderer.example.com
+    links:
+      - orderer.example.com
+    networks:
+      - byfn
+
+  cli:
+     container_name: cli
+     image: hyperledger/fabric-tools
+     privileged: true
+     tty: true
+     environment:
+       - GOPATH=/opt/gopath
+       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+       - CORE_LOGGING_LEVEL=DEBUG
+       - CORE_PEER_ID=cli
+       - CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+       - CORE_PEER_LOCALMSPID=Org1MSP
+#       - CORE_PEER_TLS_ENABLED=true
+#       - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt
+#       - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key
+#       - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+       - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+     #command: /bin/bash -c './scripts/script-e2e.sh ${CHANNEL_NAME}; sleep $TIMEOUT'
+     volumes:
+         - /var/run/:/host/var/run/
+         - ./../chaincode/:/opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/go
+         - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+         - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+         - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+     depends_on:
+       - orderer.example.com
+       - peer0.org1.example.com
+       - peer1.org1.example.com
+       - peer0.org2.example.com
+       - peer1.org2.example.com
+     networks:
+       - byfn
+
